@@ -1,0 +1,311 @@
+<?xml version="1.0"?>
+<AlteryxDocument yxmdVer="2023.2" RunE2="T">
+  <Nodes>
+    <Node ToolID="15">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextToColumns.TextToColumns">
+        <Position x="642" y="54" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Field>Headquarters</Field>
+          <ErrorHandling>Last</ErrorHandling>
+          <RootName>Headquarters</RootName>
+          <Delimeters value="," />
+          <NumFields value="2" />
+          <Flags value="0" />
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name />
+          <DefaultAnnotationText />
+          <Left value="False" />
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextToColumns" />
+    </Node>
+    <Node ToolID="16">
+      <GuiSettings>
+        <Position x="810" y="54" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Value name="Check Box (135)">False</Value>
+          <Value name="Check Box (136)">False</Value>
+          <Value name="List Box (11)">"Rank","Name","Industry","Revenue (USD millions)","Revenue growth","Employees","Headquarters","Headquarters1","Headquarters2"</Value>
+          <Value name="Check Box (84)">True</Value>
+          <Value name="Check Box (117)">True</Value>
+          <Value name="Check Box (15)">True</Value>
+          <Value name="Check Box (109)">False</Value>
+          <Value name="Check Box (122)">False</Value>
+          <Value name="Check Box (53)">False</Value>
+          <Value name="Check Box (58)">False</Value>
+          <Value name="Check Box (70)">False</Value>
+          <Value name="Check Box (77)">False</Value>
+          <Value name="Drop Down (81)">upper</Value>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name />
+          <DefaultAnnotationText />
+          <Left value="False" />
+        </Annotation>
+        <Dependencies>
+          <Implicit />
+        </Dependencies>
+      </Properties>
+      <EngineSettings Macro="Cleanse.yxmc" />
+    </Node>
+    <Node ToolID="17">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="930" y="54" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File MaxRecords="" FileFormat="0">C:\Users\shara\Downloads\clean_data.csv</File>
+          <Passwords />
+          <Disable>False</Disable>
+          <FormatSpecificOptions>
+            <LineEndStyle>CRLF</LineEndStyle>
+            <Delimeter>,</Delimeter>
+            <ForceQuotes>False</ForceQuotes>
+            <HeaderRow>True</HeaderRow>
+            <CodePage>28591</CodePage>
+            <WriteBOM>True</WriteBOM>
+          </FormatSpecificOptions>
+          <MultiFile value="False" />
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name />
+          <DefaultAnnotationText>clean_data.csv</DefaultAnnotationText>
+          <Left value="False" />
+        </Annotation>
+        <Dependencies>
+          <Implicit />
+        </Dependencies>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="14">
+      <GuiSettings Plugin="AlteryxGuiToolkit.ToolContainer.ToolContainer">
+        <Position x="29" y="5" width="361" height="227" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Caption>Input + Transformation</Caption>
+          <Style TextColor="#314c4a" FillColor="#ecf2f2" BorderColor="#314c4a" Transparency="25" Margin="25" />
+          <Disabled value="False" />
+          <Folded value="False" />
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name />
+          <AnnotationText>Input + Transformation</AnnotationText>
+          <DefaultAnnotationText />
+          <Left value="False" />
+        </Annotation>
+      </Properties>
+      <ChildNodes>
+        <Node ToolID="2">
+          <GuiSettings Plugin="JupyterCode">
+            <Position x="54" y="78" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <WorkflowName>c:\program files\alteryx\bin\new workflow3</WorkflowName>
+              <JupyterProduction>true</JupyterProduction>
+              <vEnvName>designerbasetools_venv</vEnvName>
+              <DefaultVenv>1</DefaultVenv>
+              <productionModeScript>#################################
+# List all non-standard packages to be imported by your 
+# script here (only missing packages will be installed)
+from ayx import Package
+# Package.installPackages(['pandas','numpy'])
+
+
+#################################
+from ayx import Alteryx
+
+
+
+
+#################################
+from bs4 import BeautifulSoup
+import requests
+import pandas as pd
+
+
+#################################
+url = 'https://en.wikipedia.org/wiki/List_of_largest_companies_in_the_United_States_by_revenue'
+
+webpage = requests.get(url)
+
+soup = BeautifulSoup(webpage.text, 'html')
+
+
+#################################
+table = soup.find('table', class_ = 'wikitable sortable')
+
+
+#################################
+titles = [title.text.strip() for title in table.find_all('th')]
+# print(titles)
+
+
+#################################
+df = pd.DataFrame(columns = titles)
+
+
+#################################
+for row in table.find_all('tr')[1:]:
+    row_data = [data.text.strip() for data in row.find_all('td')]
+    length = len(df)
+    df.loc[length] = row_data
+
+
+#################################
+df
+
+
+#################################
+Alteryx.write(df,1)
+
+
+#################################
+</productionModeScript>
+              <Port>52380</Port>
+              <JupyterGuidDir>4964cefbe126b092e7b66444b23617aa</JupyterGuidDir>
+              <JupyterGuidCopy />
+              <LastExecutedByEngineVersion>2023.2.1.133</LastExecutedByEngineVersion>
+              <Notebook><![CDATA[{"cells":[{"metadata":{"ayx":{"cell_css":"border: 3px solid #357; margin: 4px; background: #fbffff","contents_keyword":"Alteryx.help()","label":"info"}},"cell_type":"markdown","source":["Run `Alteryx.help()` for info about useful functions.  \n","i.e., `Alteryx.read(\"#1\")`, `Alteryx.write(df,1)`, `Alteryx.getWorkflowConstant(\"Engine.WorkflowDirectory\")`"]},{"metadata":{"ayx":{"cell_css":"border: 1px solid #58a; margin: 2px;","contents_keyword":"installPackages","label":"deps"}},"cell_type":"code","source":["# List all non-standard packages to be imported by your \n","# script here (only missing packages will be installed)\n","from ayx import Package\n","# Package.installPackages(['pandas','numpy'])"],"execution_count":1,"outputs":[]},{"metadata":{},"cell_type":"code","source":["from ayx import Alteryx\n","\n"],"execution_count":2,"outputs":[]},{"metadata":{},"cell_type":"code","source":["from bs4 import BeautifulSoup\n","import requests\n","import pandas as pd"],"execution_count":3,"outputs":[]},{"metadata":{},"cell_type":"code","source":["url = 'https://en.wikipedia.org/wiki/List_of_largest_companies_in_the_United_States_by_revenue'\n","\n","webpage = requests.get(url)\n","\n","soup = BeautifulSoup(webpage.text, 'html')"],"execution_count":4,"outputs":[]},{"metadata":{},"cell_type":"code","source":["table = soup.find('table', class_ = 'wikitable sortable')"],"execution_count":5,"outputs":[]},{"metadata":{},"cell_type":"code","source":["titles = [title.text.strip() for title in table.find_all('th')]\n","# print(titles)"],"execution_count":6,"outputs":[]},{"metadata":{},"cell_type":"code","source":["df = pd.DataFrame(columns = titles)"],"execution_count":7,"outputs":[]},{"metadata":{},"cell_type":"code","source":["for row in table.find_all('tr')[1:]:\n","    row_data = [data.text.strip() for data in row.find_all('td')]\n","    length = len(df)\n","    df.loc[length] = row_data"],"execution_count":8,"outputs":[]},{"metadata":{},"cell_type":"code","source":["df"],"execution_count":9,"outputs":[]},{"metadata":{},"cell_type":"code","source":["Alteryx.write(df,1)"],"execution_count":10,"outputs":[]},{"metadata":{},"cell_type":"code","source":[],"execution_count":null,"outputs":[]}],"metadata":{"kernelspec":{"name":"designerbasetools_venv","display_name":"designerbasetools_venv","language":"python"},"language_info":{"name":"python","version":"3.8.16","mimetype":"text/x-python","codemirror_mode":{"name":"ipython","version":3},"pygments_lexer":"ipython3","nbconvert_exporter":"python","file_extension":".py"}},"nbformat":4,"nbformat_minor":2}]]></Notebook>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output1">
+              <RecordInfo>
+                <Field name="Rank" size="1073741823" source="PythonTool:" type="V_WString" />
+                <Field name="Name" size="1073741823" source="PythonTool:" type="V_WString" />
+                <Field name="Industry" size="1073741823" source="PythonTool:" type="V_WString" />
+                <Field name="Revenue (USD millions)" size="1073741823" source="PythonTool:" type="V_WString" />
+                <Field name="Revenue growth" size="1073741823" source="PythonTool:" type="V_WString" />
+                <Field name="Employees" size="1073741823" source="PythonTool:" type="V_WString" />
+                <Field name="Headquarters" size="1073741823" source="PythonTool:" type="V_WString" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxJupyterPluginEngine.dll" EngineDllEntryPoint="AlteryxJupyter" />
+        </Node>
+        <Node ToolID="12">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.Formula.Formula">
+            <Position x="210" y="56" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <FormulaFields>
+                <FormulaField expression="ToNumber(ReplaceChar([Revenue (USD millions)], ',', ''))&#xA;&#xA;" field="Revenue (USD millions)" size="1073741823" type="V_WString" />
+                <FormulaField expression="ToNumber(ReplaceChar([Employees], ',', ''))" field="Employees" size="1073741823" type="V_WString" />
+                <FormulaField expression="ReplaceChar([Revenue growth], '%', '')" field="Revenue growth" size="1073741823" type="V_WString" />
+              </FormulaFields>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText>Revenue (USD millions) = ToNumber(ReplaceChar([Revenue (USD millions)], ',', '')...</DefaultAnnotationText>
+              <Left value="False" />
+            </Annotation>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxFormula" />
+        </Node>
+        <Node ToolID="13">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.AlteryxSelect.AlteryxSelect">
+            <Position x="306" y="54" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <OrderChanged value="False" />
+              <CommaDecimal value="False" />
+              <SelectFields>
+                <SelectField field="Revenue (USD millions)" selected="True" type="Int64" size="8" />
+                <SelectField field="Revenue growth" selected="True" type="Float" size="4" />
+                <SelectField field="Employees" selected="True" type="Int64" size="8" />
+                <SelectField field="*Unknown" selected="True" />
+              </SelectFields>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxSelect" />
+        </Node>
+      </ChildNodes>
+    </Node>
+  </Nodes>
+  <Connections>
+    <Connection>
+      <Origin ToolID="15" Connection="Output" />
+      <Destination ToolID="16" Connection="Input2" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="16" Connection="Output26" />
+      <Destination ToolID="17" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="2" Connection="Output1" />
+      <Destination ToolID="12" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="12" Connection="Output" />
+      <Destination ToolID="13" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="13" Connection="Output" />
+      <Destination ToolID="15" Connection="Input" />
+    </Connection>
+  </Connections>
+  <Properties>
+    <Memory default="True" />
+    <GlobalRecordLimit value="0" />
+    <TempFiles default="True" />
+    <Annotation on="True" includeToolName="False" />
+    <ConvErrorLimit value="10" />
+    <ConvErrorLimit_Stop value="False" />
+    <CancelOnError value="False" />
+    <DisableBrowse value="False" />
+    <EnablePerformanceProfiling value="False" />
+    <RunWithE2 value="True" />
+    <PredictiveToolsCodePage value="1252" />
+    <DisableAllOutput value="False" />
+    <ShowAllMacroMessages value="False" />
+    <ShowConnectionStatusIsOn value="True" />
+    <ShowConnectionStatusOnlyWhenRunning value="True" />
+    <ZoomLevel value="0" />
+    <LayoutType>Horizontal</LayoutType>
+    <MetaInfo>
+      <NameIsFileName value="True" />
+      <Name>Python-Scraping</Name>
+      <Description />
+      <RootToolName />
+      <ToolVersion />
+      <ToolInDb value="False" />
+      <CategoryName />
+      <SearchTags />
+      <Author />
+      <Company />
+      <Copyright />
+      <DescriptionLink actual="" displayed="" />
+      <Example>
+        <Description />
+        <File />
+      </Example>
+      <WorkflowId value="09dd45fa-eef3-4880-8ef0-4379284192d9" />
+      <Telemetry>
+        <PreviousWorkflowId value="eca2d6d7-5067-4c43-b410-65f48e9ced74" />
+        <OriginWorkflowId value="eca2d6d7-5067-4c43-b410-65f48e9ced74" />
+      </Telemetry>
+      <PlatformWorkflowId value="" />
+    </MetaInfo>
+    <Events>
+      <Enabled value="True" />
+    </Events>
+  </Properties>
+</AlteryxDocument>
